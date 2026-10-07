@@ -1,0 +1,28 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+
+  "regions": ["sin1"],
+
+  "functions": {
+    "api/v2/facebook.js":      { "memory": 1024, "maxDuration": 60 },
+    "api/v2/upload.js":        { "memory": 512,  "maxDuration": 30 },
+    "api/v2/faceswap.js":      { "memory": 1024, "maxDuration": 60 },
+    "api/v2/voice-changer.js": { "memory": 1024, "maxDuration": 60 },
+    "api/v2/**/*.js":          { "memory": 512,  "maxDuration": 30 }
+  },
+
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, x-api-key" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
+    }
+  ],
+
+  "cleanUrls": true,
+  "trailingSlash": false
+}
