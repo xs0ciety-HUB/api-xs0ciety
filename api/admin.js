@@ -7,30 +7,44 @@ module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Headers', '*');
     if (req.method === 'OPTIONS') return res.status(204).end();
 
-    const secret = req.headers['x-admin-secret'] || req.query.secret;
-    if (secret !== process.env.ADMIN_SECRET) {
-        return res.status(403).json({ success: false, error: 'Forbidden' });
+    try {
+        const secret = req.headers['x-admin-secret'] || req.query.secret;
+        if (secret !== process.env.ADMIN_SECRET) {
+            return res.status(403).json({ success: false, error: 'Forbidden' });
+        }
+
+        let body = req.body;
+        if (typeof body === 'string') {
+            try { body = JSON.parse(body); } catch { body = {}; }
+        }
+        body = body || {};
+
+        const action = req.query.action || body.action;
+
+        if (action === 'generate') return await generate(req, res, body);
+        if (action === 'list')     return await list(req, res);
+        if (action === 'revoke')   return await revoke(req, res, body);
+        if (action === 'topup')    return await topup(req, res, body);
+
+        return res.json({
+            success: true,
+            info: 'Admin API',
+            actions: ['generate', 'list', 'revoke', 'topup'],
+            usage: 'GET/POST /api/admin?action=generate&secret=XXX',
+        });
+    } catch (err) {
+        console.error('[admin] error:', err);
+        return res.status(500).json({
+            success: false,
+            error: err.message || 'Server error',
+            stack: err.stack ? err.stack.slice(0, 500) : null,
+            debug: {
+                env_url_exists: !!process.env.UPSTASH_REDIS_REST_URL,
+                env_token_exists: !!process.env.UPSTASH_REDIS_REST_TOKEN,
+                env_secret_exists: !!process.env.ADMIN_SECRET,
+            },
+        });
     }
-
-    let body = req.body;
-    if (typeof body === 'string') {
-        try { body = JSON.parse(body); } catch { body = {}; }
-    }
-    body = body || {};
-
-    const action = req.query.action || body.action;
-
-    if (action === 'generate') return await generate(req, res, body);
-    if (action === 'list')     return await list(req, res);
-    if (action === 'revoke')   return await revoke(req, res, body);
-    if (action === 'topup')    return await topup(req, res, body);
-
-    return res.json({
-        success: true,
-        info: 'Admin API',
-        actions: ['generate', 'list', 'revoke', 'topup'],
-        usage: 'GET/POST /api/admin?action=generate&secret=XXX',
-    });
 };
 
 async function generate(req, res, body) {
@@ -74,4 +88,4 @@ async function topup(req, res, body) {
     if (days) info.expires_at = Date.now() + days * 24 * 60 * 60 * 1000;
     await redis.set(`apikey:${key}`, JSON.stringify(info));
     return res.json({ success: true, info });
-}
+                     }
