@@ -30,25 +30,9 @@ module.exports = async (req, res) => {
             success: true,
             info: 'Admin API',
             actions: ['generate', 'list', 'revoke', 'topup'],
-            usage: 'GET/POST /api/admin?action=generate&secret=XXX',
         });
     } catch (err) {
-        console.error('[admin] error:', err);
-        return res.status(500).json({
-            success: false,
-            error: err.message || 'Server error',
-            stack: err.stack ? err.stack.slice(0, 500) : null,
-            debug: {
-                env_url_exists: !!process.env.UPSTASH_REDIS_REST_URL,
-                env_token_exists: !!process.env.UPSTASH_REDIS_REST_TOKEN,
-                env_secret_exists: !!process.env.ADMIN_SECRET,
-                env_url_value: process.env.UPSTASH_REDIS_REST_URL ? process.env.UPSTASH_REDIS_REST_URL.slice(0, 40) : null,
-                env_token_length: process.env.UPSTASH_REDIS_REST_TOKEN ? process.env.UPSTASH_REDIS_REST_TOKEN.length : 0,
-                env_keys: Object.keys(process.env).filter(k =>
-                    k.includes('UPSTASH') || k.includes('ADMIN') || k.includes('REDIS')
-                ),
-            },
-        });
+        return res.status(500).json({ success: false, error: err.message || 'Server error' });
     }
 };
 
@@ -93,4 +77,4 @@ async function topup(req, res, body) {
     if (days) info.expires_at = Date.now() + days * 24 * 60 * 60 * 1000;
     await redis.set(`apikey:${key}`, JSON.stringify(info));
     return res.json({ success: true, info });
-            }
+}
