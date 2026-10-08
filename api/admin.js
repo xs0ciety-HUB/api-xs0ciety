@@ -42,6 +42,11 @@ module.exports = async (req, res) => {
                 env_url_exists: !!process.env.UPSTASH_REDIS_REST_URL,
                 env_token_exists: !!process.env.UPSTASH_REDIS_REST_TOKEN,
                 env_secret_exists: !!process.env.ADMIN_SECRET,
+                env_url_value: process.env.UPSTASH_REDIS_REST_URL ? process.env.UPSTASH_REDIS_REST_URL.slice(0, 40) : null,
+                env_token_length: process.env.UPSTASH_REDIS_REST_TOKEN ? process.env.UPSTASH_REDIS_REST_TOKEN.length : 0,
+                env_keys: Object.keys(process.env).filter(k =>
+                    k.includes('UPSTASH') || k.includes('ADMIN') || k.includes('REDIS')
+                ),
             },
         });
     }
@@ -88,4 +93,4 @@ async function topup(req, res, body) {
     if (days) info.expires_at = Date.now() + days * 24 * 60 * 60 * 1000;
     await redis.set(`apikey:${key}`, JSON.stringify(info));
     return res.json({ success: true, info });
-                     }
+            }
