@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="google-site-verification" content="uS3iOwaXLIVLFAQmgPb2bXPBIXJ2BukqzzJTGtKziOU" />
+<meta name="description" content="Multi API KEY Downloader - TikTok, Instagram, YouTube, SoundCloud, Spotify, Facebook. fleksibel dan cepat." />
+<meta name="keywords" content="API KEY downloader, tiktok, instagram, youtube, soundcloud, spotify, facebook" />
+<meta name="author" content="xs0ciety" />
+<meta name="robots" content="index, follow" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>xs0cietyHUB — Control Plane</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        },
+        colors: {
+          cream: '#FDFBF7', pgreen: '#86EFAC', pyellow: '#FDE047', porange: '#FDBA74', pblue: '#3B82F6',
+        },
+      },
+    },
+  };
+</script>
+<style>
+  html,body{height:100%}
+  body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#FDFBF7;color:#000;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  .sh-sm{box-shadow:2px 2px 0 0 #000}.sh{box-shadow:3px 3px 0 0 #000}.sh-lg{box-shadow:4px 4px 0 0 #000}
+  .sh-xl{box-shadow:5px 5px 0 0 #000}.sh-2xl{box-shadow:6px 6px 0 0 #000}
+  .bd{border:2.5px solid #000}.bd-2{border:2px solid #000}.bd-3{border:3px solid #000}
+  .btn-brutal{transition:transform .13s ease,box-shadow .13s ease}
+  .btn-brutal:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 0 #000}
+  .btn-brutal:active{transform:translate(2px,2px);box-shadow:1px 1px 0 0 #000}
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:#000;border-radius:999px}
+  .pulse{animation:p 1.4s ease-in-out infinite}
+  @keyframes p{0%,100%{opacity:1}50%{opacity:.35}}
+  .log-in{animation:slideIn .35s ease}
+  @keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+  .view{display:none}.view.active{display:block;animation:fadeIn .28s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .sidebar{position:fixed;top:0;left:0;width:290px;height:100vh;background:#FDE047;border-right:2.5px solid #000;z-index:60;transform:translateX(-105%);transition:transform .3s cubic-bezier(.22,.9,.3,1);display:flex;flex-direction:column}
+  body.sidebar-open .sidebar{transform:translateX(0)}
+  .main-wrap{padding:20px 16px 140px 20px;transition:padding-left .3s ease;max-width:100%}
+  @media(min-width:1024px){.main-wrap{padding:26px 34px 100px 100px}body.sidebar-open .main-wrap{padding-left:330px}}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:55;opacity:0;pointer-events:none;transition:opacity .25s ease}
+  body.sidebar-open .overlay{opacity:1;pointer-events:auto}
+  @media(min-width:1024px){.overlay{display:none!important}}
+  .community{position:fixed;left:14px;right:14px;bottom:14px;z-index:70;transform:translateY(24px);opacity:0;pointer-events:none;transition:transform .3s ease,opacity .3s ease;max-width:540px;margin:0 auto}
+  .community.show{transform:translateY(0);opacity:1;pointer-events:auto}
+  @media(min-width:640px){.community{left:auto;right:22px;bottom:22px;margin:0}}
+  .stat-num{font-variant-numeric:tabular-nums;letter-spacing:-0.03em}
+  .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:8px;border-radius:12px;font-weight:700;font-size:13.5px;color:#000;text-decoration:none;border:2.5px solid transparent;cursor:pointer;transition:all .13s ease;user-select:none}
+  .nav-item:hover{background:#fff;border-color:#000;box-shadow:3px 3px 0 0 #000;transform:translate(-1px,-1px)}
+  .nav-item.active{background:#86EFAC;border-color:#000;box-shadow:3px 3px 0 0 #000}
+  .ribbon{position:absolute;top:-12px;right:14px;padding:4px 12px;border:2px solid #000;border-radius:999px;font-weight:800;font-size:10px;letter-spacing:1.5px;box-shadow:2px 2px 0 0 #000}
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(3px)}
+  .modal-backdrop.show{display:flex}
+  .modal-card{background:#fff;border:3px solid #000;border-radius:20px;box-shadow:8px 8px 0 0 #000;max-width:440px;width:100%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;animation:modalIn .3s ease}
+  @keyframes modalIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+  .modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:2.5px solid #000}
+  .modal-body{padding:16px;overflow-y:auto}
+  .skeleton{background:linear-gradient(90deg,#f3f3f3 25%,#eaeaea 50%,#f3f3f3 75%);background-size:200% 100%;animation:sk 1.2s infinite}
+  @keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  .method-badge{display:inline-block;padding:2px 8px;border:2px solid #000;border-radius:6px;font-weight:800;font-size:10px;letter-spacing:.5px}
+  .method-GET{background:#86EFAC}.method-POST{background:#FDBA74}.method-PUT{background:#FDE047}.method-DELETE{background:#FCA5A5}
+  @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  .spin{animation:spin 1s linear infinite}
+</style>
+</head>
+<body>
+
+<button id="burger" class="fixed top-4 left-4 z-[80] w-[52px] h-[52px] bg-white bd-3 rounded-2xl sh-lg btn-brutal flex flex-col items-center justify-center gap-[5px]" aria-label="Toggle sidebar">
+  <span class="block w-[22px] h-[3px] bg-black rounded-full"></span>
+  <span class="block w-[22px] h-[3px] bg-black rounded-full"></span>
+  <span class="block w-[22px] h-[3px] bg-black rounded-full"></span>
+</button>
+
+<div id="overlay" class="overlay"></div>
+
+<aside id="sidebar" class="sidebar">
+  <div class="bg-pgreen border-b-[2.5px] border-black pl-[84px] pr-4 py-5 flex items-center min-h-[88px]">
+    <div>
+      <div class="font-extrabold text-[19px] tracking-tight leading-none">xs0cietyHUB</div>
+      <div class="font-mono text-[9px] font-semibold tracking-[2.5px] opacity-70 mt-1.5">CONTROL PLANE</div>
+    </div>
+  </div>
+  <nav class="flex-1 overflow-y-auto px-4 py-5">
+    <div class="mb-5">
+      <div class="font-extrabold text-[10px] tracking-[2.5px] opacity-50 px-2 mb-2.5">MAIN</div>
+      <a data-view="dashboard" class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Dashboard
+      </a>
+      <a data-view="docs" class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
+        Documentation
+      </a>
+    </div>
+    <div class="mb-5">
+      <div class="font-extrabold text-[10px] tracking-[2.5px] opacity-50 px-2 mb-2.5">SYSTEM</div>
+      <a data-view="status" class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>
+        System Status
+      </a>
+      <a data-view="shop" class="nav-item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Shop
+      </a>
+    </div>
+  </nav>
+</aside>
+
+<main class="main-wrap">
+
+  <!-- ============ DASHBOARD ============ -->
+  <section id="view-dashboard" class="view active">
+    <div class="flex items-start justify-between gap-3 mb-5 flex-wrap">
+      <span class="inline-flex items-center gap-2 px-3.5 py-2 bg-pyellow bd rounded-full sh font-extrabold text-[11px] tracking-[1.3px] uppercase whitespace-nowrap">
+        <span id="clusterDot" class="w-2.5 h-2.5 rounded-full bg-green-600 border-2 border-black pulse"></span>
+        <span id="clusterText">CLUSTER ONLINE</span>
+      </span>
+      <div class="bg-white bd rounded-2xl sh px-4 py-2 text-right whitespace-nowrap">
+        <div class="text-[10px] font-extrabold tracking-[1.5px] uppercase text-gray-500">Local Time</div>
+        <div id="clock" class="stat-num font-extrabold text-[20px] leading-tight">00.00.00</div>
+      </div>
+    </div>
+    <h1 id="greeting" class="inline-block bg-pgreen bd-3 rounded-2xl sh-lg px-4 py-2 font-extrabold text-[24px] sm:text-[28px] tracking-tight leading-tight mb-4">Good Night, Dev</h1>
+    <p class="text-[14px] font-medium text-gray-700 leading-relaxed max-w-2xl mb-7">
+      Your control plane. Monitor real traffic, live endpoint pings, and actual server metrics from one place.
+    </p>
+    <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-7">
+      <div class="bg-white bd rounded-2xl sh-lg p-4 sm:p-5 btn-brutal">
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div class="text-[10px] sm:text-[11px] font-extrabold tracking-[1.6px] uppercase text-gray-500 pt-1">Today Requests</div>
+          <div class="w-10 h-10 sm:w-11 sm:h-11 bg-pyellow bd-2 rounded-xl sh-sm flex items-center justify-center shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 12.5a.6.6 0 0 0 .5.95h5.2l-1.15 7.4a.6.6 0 0 0 1.05.5L19.5 11.5a.6.6 0 0 0-.5-.95h-5.2L14.95 2.6A.6.6 0 0 0 13 2z"/></svg>
+          </div>
+        </div>
+        <div id="statToday" class="stat-num font-extrabold text-[30px] sm:text-[38px] leading-none mb-3">0</div>
+        <span class="inline-block px-2.5 py-1 bg-pgreen bd-2 rounded-full font-extrabold text-[10.5px] whitespace-nowrap">Live count today</span>
+      </div>
+      <div class="bg-white bd rounded-2xl sh-lg p-4 sm:p-5 btn-brutal">
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div class="text-[10px] sm:text-[11px] font-extrabold tracking-[1.6px] uppercase text-gray-500 pt-1">Monthly Requests</div>
+          <div class="w-10 h-10 sm:w-11 sm:h-11 bg-pgreen bd-2 rounded-xl sh-sm flex items-center justify-center shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+          </div>
+        </div>
+        <div id="statMonthly" class="stat-num font-extrabold text-[30px] sm:text-[38px] leading-none mb-3">0</div>
+        <span class="inline-block px-2.5 py-1 bg-white bd-2 rounded-full font-extrabold text-[10.5px] whitespace-nowrap">This month</span>
+      </div>
+      <div class="bg-white bd rounded-2xl sh-lg p-4 sm:p-5 btn-brutal">
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div class="text-[10px] sm:text-[11px] font-extrabold tracking-[1.6px] uppercase text-gray-500 pt-1">Total Requests</div>
+          <div class="w-10 h-10 sm:w-11 sm:h-11 bg-porange bd-2 rounded-xl sh-sm flex items-center justify-center shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>
+          </div>
+        </div>
+        <div id="statTotal" class="stat-num font-extrabold text-[30px] sm:text-[38px] leading-none mb-3">0</div>
+        <span class="inline-block px-2.5 py-1 bg-white bd-2 rounded-full font-extrabold text-[10.5px] whitespace-nowrap">All time recorded</span>
+      </div>
+    </div>
+
+    <div class="bg-white bd rounded-2xl sh-xl overflow-hidden">
+      <div class="bg-pgreen border-b-[2.5px] border-black px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="w-2.5 h-2.5 rounded-full bg-red-400 bd-2 shrink-0"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-yellow-300 bd-2 shrink-0"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-green-400 bd-2 shrink-0"></span>
+          <span class="font-mono text-[12.5px] font-semibold ml-1 truncate">live-traffic.log</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="logCount" class="hidden sm:inline-block px-2 py-0.5 bg-white bd-2 rounded-full font-mono text-[10px]">0 entries</span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white bd-2 rounded-full sh-sm font-extrabold text-[10px] tracking-[1.2px] text-red-600 whitespace-nowrap">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-600 pulse"></span> LIVE
+          </span>
+        </div>
+      </div>
+      <div id="logBody" class="bg-cream p-3 sm:p-4 flex flex-col gap-2.5 max-h-[440px] overflow-y-auto">
+        <div class="text-[12px] text-gray-500 italic font-medium p-2">Menunggu traffic pertama...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DOCUMENTATION ============ -->
+  <section id="view-docs" class="view">
+    <div class="flex items-center gap-3 mb-5 flex-wrap">
+      <span class="inline-flex items-center gap-2 px-3.5 py-2 bg-pyellow bd rounded-full sh font-extrabold text-[11px] tracking-[1.3px] uppercase whitespace-nowrap">
+        <span class="w-2.5 h-2.5 rounded-full bg-green-600 border-2 border-black pulse"></span>
+        CLUSTER ONLINE
+      </span>
+      <h1 class="inline-flex items-center gap-2 bg-pgreen bd-3 rounded-2xl sh-lg px-4 py-2 font-extrabold text-[22px] sm:text-[26px] tracking-tight leading-tight">
+        <span class="bg-white px-2.5 py-0.5 rounded-lg border-2 border-black">API</span> Docs
+      </h1>
+    </div>
+
+    <p class="text-[14px] font-medium text-gray-700 leading-relaxed max-w-2xl mb-6">
+      Daftar endpoint API yang tersedia untuk kamu akses. Semua request butuh header <span class="font-mono text-[12px] bg-pyellow px-1.5 py-0.5 rounded border-2 border-black">x-api-key</span> atau query <span class="font-mono text-[12px] bg-pyellow px-1.5 py-0.5 rounded border-2 border-black">?apikey=</span>.
+    </p>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
+      <div class="bg-white bd rounded-2xl sh p-4 text-center">
+        <div id="docsCountEP" class="stat-num font-extrabold text-[24px] sm:text-[26px] leading-none">0</div>
+        <div class="text-[9.5px] font-extrabold tracking-[1.5px] text-gray-500 mt-2">ENDPOINTS</div>
+      </div>
+      <div class="bg-white bd rounded-2xl sh p-4 text-center">
+        <div id="docsCountCat" class="stat-num font-extrabold text-[24px] sm:text-[26px] leading-none">0</div>
+        <div class="text-[9.5px] font-extrabold tracking-[1.5px] text-gray-500 mt-2">CATEGORIES</div>
+      </div>
+      <div class="bg-white bd rounded-2xl sh p-4 text-center">
+        <div id="docsRAM" class="stat-num font-extrabold text-[24px] sm:text-[26px] leading-none">—</div>
+        <div class="text-[9.5px] font-extrabold tracking-[1.5px] text-gray-500 mt-2">JS HEAP</div>
+      </div>
+      <div class="bg-white bd rounded-2xl sh p-4 text-center">
+        <div id="docsCPU" class="stat-num font-extrabold text-[24px] sm:text-[26px] leading-none">—</div>
+        <div class="text-[9.5px] font-extrabold tracking-[1.5px] text-gray-500 mt-2">CPU CORES</div>
+      </div>
+    </div>
+
+    <div class="bg-pyellow bd rounded-2xl sh p-4 max-w-3xl mb-6">
+      <div class="text-[10px] font-extrabold tracking-[1.5px] uppercase mb-2">🔑 Cara Pakai API Key</div>
+      <div class="font-mono text-[11.5px] bg-white bd-2 rounded-xl p-3 leading-relaxed">
+        Header: <b>x-api-key: sk_xxxxxxxxxxxxxxxx</b><br>
+        Query : <b>?apikey=sk_xxxxxxxxxxxxxxxx</b>
+      </div>
+      <div class="text-[11px] font-semibold text-gray-700 mt-2">
+        Butuh API key? Hubungi admin via WhatsApp atau Telegram (lihat menu Shop).
+      </div>
+    </div>
+
+    <div id="docsStatus" class="hidden"></div>
+    <div id="docsList" class="flex flex-col gap-4 mb-24"></div>
+  </section>
+
+  <!-- ============ SYSTEM STATUS ============ -->
+  <section id="view-status" class="view">
+    <div class="flex items-center gap-3 mb-4 flex-wrap">
+      <span class="inline-flex items-center gap-2 px-3.5 py-2 bg-pyellow bd rounded-full sh font-extrabold text-[11px] tracking-[1.3px] uppercase whitespace-nowrap">
+        <span id="statusDot" class="w-2.5 h-2.5 rounded-full bg-green-600 border-2 border-black pulse"></span>
+        <span id="statusText">CLUSTER ONLINE</span>
+      </span>
+    </div>
+    <h1 class="inline-block bg-pgreen bd-3 rounded-2xl sh-lg px-4 py-2 font-extrabold text-[24px] sm:text-[28px] tracking-tight leading-tight mb-4">System Monitor</h1>
+    <div class="inline-block bg-white bd rounded-xl sh px-3 py-1.5 font-mono font-semibold text-[11.5px] mb-7" id="statusTime">—</div>
+
+    <div class="flex flex-col gap-4 max-w-3xl">
+      <div class="bg-white bd rounded-2xl sh-lg p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 bg-pyellow bd-2 rounded-lg sh-sm flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <span class="font-extrabold text-[10.5px] tracking-[1.8px] text-gray-600">API SERVICE</span>
+        </div>
+        <div class="flex items-center gap-2 mb-3">
+          <span id="apiStatusDot" class="w-3 h-3 rounded-full bg-yellow-400 border-2 border-black pulse"></span>
+          <span id="apiStatusText" class="font-extrabold text-[26px] tracking-tight">CHECKING...</span>
+        </div>
+        <span id="apiModeBadge" class="inline-block px-3 py-1 bg-white bd-2 rounded-full font-extrabold text-[11px]">Menghubungi server...</span>
+      </div>
+
+      <div class="bg-white bd rounded-2xl sh-lg p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 bg-pgreen bd-2 rounded-lg sh-sm flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <span class="font-extrabold text-[10.5px] tracking-[1.8px] text-gray-600">UPTIME (SESSION)</span>
+        </div>
+        <div id="uptimeValue" class="font-extrabold text-[26px] tracking-tight mb-3">0s</div>
+        <span class="inline-block px-3 py-1 bg-white bd-2 rounded-full font-extrabold text-[11px]">Aktif sejak halaman dibuka</span>
+      </div>
+
+      <div class="bg-white bd rounded-2xl sh-lg p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 bg-porange bd-2 rounded-lg sh-sm flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2 4.5 12.5a.6.6 0 0 0 .5.95h5.2l-1.15 7.4a.6.6 0 0 0 1.05.5L19.5 11.5a.6.6 0 0 0-.5-.95h-5.2L14.95 2.6A.6.6 0 0 0 13 2z"/></svg>
+          </div>
+          <span class="font-extrabold text-[10.5px] tracking-[1.8px] text-gray-600">API LATENCY</span>
+        </div>
+        <div id="latencyValue" class="font-extrabold text-[26px] tracking-tight mb-3">—</div>
+        <span id="latencyBadge" class="inline-block px-3 py-1 bg-white bd-2 rounded-full font-extrabold text-[11px]">Mengukur ping ke server API</span>
+      </div>
+
+      <div class="bg-white bd rounded-2xl sh-lg p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 bg-pyellow bd-2 rounded-lg sh-sm flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+          </div>
+          <span class="font-extrabold text-[10.5px] tracking-[1.8px] text-gray-600">JS MEMORY USAGE</span>
+        </div>
+        <div id="memoryValue" class="font-extrabold text-[26px] tracking-tight mb-3">—</div>
+        <span id="memoryBadge" class="inline-block px-3 py-1 bg-white bd-2 rounded-full font-extrabold text-[11px]">Memerlukan Chrome/Edge</span>
+      </div>
+
+      <div class="bg-white bd rounded-2xl sh-lg p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 bg-pgreen bd-2 rounded-lg sh-sm flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+          </div>
+          <span class="font-extrabold text-[10.5px] tracking-[1.8px] text-gray-600">CPU / FPS</span>
+        </div>
+        <div id="cpuValue" class="font-extrabold text-[26px] tracking-tight mb-3">—</div>
+        <span id="cpuBadge" class="inline-block px-3 py-1 bg-white bd-2 rounded-full font-extrabold text-[11px]">—</span>
+      </div>
+
+      <div class="bg-white bd rounded-2xl sh-lg p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 bg-white bd-2 rounded-lg sh-sm flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+          </div>
+          <span class="font-extrabold text-[10.5px] tracking-[1.8px] text-gray-600">PLATFORM / DEVICE</span>
+        </div>
+        <div id="platformValue" class="font-extrabold text-[22px] tracking-tight mb-3">—</div>
+        <span id="platformBadge" class="inline-block px-3 py-1 bg-white bd-2 rounded-full font-extrabold text-[11px]">—</span>
+      </div>
+
+      <div class="bg-white bd rounded-2xl sh-lg p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 bg-pgreen bd-2 rounded-lg sh-sm flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" x2="12.01" y1="20" y2="20"/></svg>
+          </div>
+          <span class="font-extrabold text-[10.5px] tracking-[1.8px] text-gray-600">CONNECTION</span>
+        </div>
+        <div id="connValue" class="font-extrabold text-[22px] tracking-tight mb-3">—</div>
+        <span id="connBadge" class="inline-block px-3 py-1 bg-white bd-2 rounded-full font-extrabold text-[11px]">—</span>
+      </div>
+
+      <div id="batteryCard" class="hidden bg-white bd rounded-2xl sh-lg p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 bg-pyellow bd-2 rounded-lg sh-sm flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="16" height="10" x="2" y="7" rx="2"/><line x1="22" x2="22" y1="11" y2="13"/></svg>
+          </div>
+          <span class="font-extrabold text-[10.5px] tracking-[1.8px] text-gray-600">BATTERY</span>
+        </div>
+        <div id="batteryValue" class="font-extrabold text-[26px] tracking-tight mb-3">—</div>
+        <span id="batteryBadge" class="inline-block px-3 py-1 bg-white bd-2 rounded-full font-extrabold text-[11px]">—</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SHOP ============ -->
+  <section id="view-shop" class="view">
+    <div class="flex items-center gap-3 mb-2 flex-wrap">
+      <span class="inline-flex items-center gap-2 px-3.5 py-2 bg-pyellow bd rounded-full sh font-extrabold text-[11px] tracking-[1.3px] uppercase whitespace-nowrap">
+        <span class="w-2.5 h-2.5 rounded-full bg-green-600 border-2 border-black pulse"></span>
+        CLUSTER ONLINE
+      </span>
+      <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 border-2 border-blue-400 rounded-full font-extrabold text-[11px] tracking-wide text-blue-700">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4.5 12.5a.6.6 0 0 0 .5.95h5.2l-1.15 7.4a.6.6 0 0 0 1.05.5L19.5 11.5a.6.6 0 0 0-.5-.95h-5.2L14.95 2.6A.6.6 0 0 0 13 2z"/></svg>
+        Serverless Optimized
+      </span>
+    </div>
+
+    <h1 class="inline-block bg-pgreen bd-3 rounded-2xl sh-lg px-4 py-2 font-extrabold text-[24px] sm:text-[28px] tracking-tight leading-tight mt-3 mb-3">
+      API Key Store
+    </h1>
+
+    <p class="text-[13.5px] font-medium text-gray-600 leading-relaxed max-w-2xl mb-3">
+      Beli API key untuk mengakses semua endpoint xs0cietyHUB. Pembayaran via QRIS, order langsung terkirim ke server & admin.
+    </p>
+
+    <div class="bg-pyellow bd rounded-2xl sh p-4 max-w-2xl mb-7 flex items-start gap-3">
+      <div class="w-9 h-9 bg-white bd-2 rounded-lg sh-sm flex items-center justify-center shrink-0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+      </div>
+      <div class="text-[12px] font-semibold leading-relaxed">
+        Kuota per key dioptimalkan untuk <b>serverless deployment</b>. Order otomatis tercatat di server. Setelah transfer, kirim bukti ke admin untuk aktivasi.
+      </div>
+    </div>
+
+    <!-- MY ORDERS PANEL -->
+    <div class="bg-white bd rounded-2xl sh-lg p-4 sm:p-5 mb-7">
+      <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-pyellow bd-2 rounded-lg sh-sm flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          </div>
+          <span class="font-extrabold text-[11px] tracking-[1.8px] text-gray-600">MY ORDERS</span>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span id="lastSyncTime" class="font-mono text-[10px] text-gray-500 hidden sm:inline">Belum pernah sync</span>
+          <button id="syncOrders" class="px-3 py-1.5 bg-pgreen bd-2 rounded-lg sh-sm btn-brutal font-extrabold text-[10.5px] inline-flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed">
+            <svg id="syncIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
+            <span id="syncLabel">Sync Server</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Info bar: jelasin fungsi sync -->
+      <div class="bg-cream bd-2 rounded-xl p-3 mb-3 text-[11px] font-medium leading-relaxed text-gray-700">
+        <b class="text-black">ℹ Fungsi Sync Server:</b> Tarik daftar order terbaru dari server ke dashboard ini. Berguna kalau kamu order dari device/browser lain, atau mau refresh status order yang sudah <b>SYNCED</b>.
+      </div>
+
+      <!-- Notif inline -->
+      <div id="syncNotif" class="hidden mb-3 bd-2 rounded-xl p-3 text-[11.5px] font-semibold"></div>
+
+      <div id="myOrders" class="font-mono text-[12px] text-gray-500">Belum ada order. Pilih paket di bawah untuk mulai.</div>
+    </div>
+
+    <div class="grid gap-5" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));">
+
+      <div class="relative bg-white border-2 border-black rounded-2xl p-6 sh-lg transition-transform hover:-translate-y-1">
+        <span class="ribbon bg-pgreen">FREE</span>
+        <div class="font-extrabold text-[18px] mb-1">Trial</div>
+        <div class="text-[11.5px] font-semibold text-gray-500 mb-3">Cocok untuk testing endpoint</div>
+        <div class="text-[12px] font-semibold text-red-500 line-through mb-1">Rp 2.500</div>
+        <div class="font-extrabold text-[30px] tracking-tight mb-5">Rp 0</div>
+        <ul class="space-y-2.5 mb-6 text-[12.5px] font-semibold text-gray-700">
+          <li class="flex items-center gap-2.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> 50 request / bulan</li>
+          <li class="flex items-center gap-2.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Rate limit 3 req/menit</li>
+          <li class="flex items-center gap-2.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Semua endpoint AI + Scraper basic</li>
+          <li class="flex items-center gap-2.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Support komunitas</li>
+        </ul>
+        <button class="order-btn w-full bg-pblue text-white font-extrabold text-[13px] py-3 rounded-xl transition-transform hover:-translate-y-0.5"
+          data-plan="Trial" data-price="0" data-quota="50">
+          Claim Free Key
+        </button>
+      </div>
+
+      <div class="relative bg-white border-2 border-black rounded-2xl p-6 sh-lg transition-transform hover:-translate-y-1">
+        <span class="ribbon bg-pyellow">POPULAR</span>
+        <div class="font-extrabold text-[18px] mb-1">Starter</div>
+        <div class="text-[11.5px] font-semibold text-gray-500 mb-3">Untuk developer solo</div>
+        <div class="text-[12px] font-semibold text-red-500 line-through mb-1">Rp 15.000</div>
+        <div class="font-extrabold text-[30px] tracking-tight mb-5">Rp 10.000</div>
+        <ul class="space-y-2.5 mb-6 text-[12.5px] font-semibold text-gray-700">
+          <li class="flex items-center gap-2.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> 500 request / bulan</li>
+          <li class="flex items-center gap-2.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Rate limit 6 req/menit</li>
+          <li class="flex items-center gap-2.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Semua endpoint termasuk Scraper</li>
+          <li class="flex items-center gap-2.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Support via Telegram</li>
+        </ul>
+        <button class="order-btn w-full bg-pblue text-white font-extrabold text-[13px] py-3 rounded-xl transition-transform hover:-translate-y-0.5"
+          data-plan="Starter" data-price="10000" data-quota="500">
+          Order Now
+        </button>
+      </div>
+
+      <div class="relative bg-white border-2 border-black rounded-2xl p-6 sh-lg transition-transform hover:-translate-y-1">
+        <span class="ribbon bg-pgreen">BEST VALUE</span>
+        <div class="font-extrabold text-[18px] mb-1">Pro</div>
+        <div class="text-[11.5px] font-semibold text-gray-500 mb-3">Untuk production apps</div>
+        <div class="text-[12px] font-semibold text-red-500 line-through mb-1">Rp 45.000</div>
+        <div class="font-extrabold text-[30px] tracking-tight mb-5">Rp 30.000</div>
+        <ul class="space-y-2.5 mb-6 text-[12.5px] font-semibold text-gray-700">
+          <li class="flex items-center gap-2.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> 2.000 request / bulan</li>
+          <li class="flex items-center gap-2.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Rate limit 12 req/menit</li>
+          <li class="flex items-center gap-2.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Semua endpoint + prioritas antrian</li>
+          <li class="flex items-center gap-2.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Priority support 24/7</li>
+        </ul>
+        <button class="order-btn w-full bg-pblue text-white font-extrabold text-[13px] py-3 rounded-xl transition-transform hover:-translate-y-0.5"
+          data-plan="Pro" data-price="30000" data-quota="2.000">
+          Order Now
+        </button>
+      </div>
+
+      <div class="relative bg-white border-2 border-black rounded-2xl p-6 sh-lg transition-transform hover:-translate-y-1">
+        <span class="ribbon bg-porange">ENTERPRISE</span>
+        <div class="font-extrabold text-[18px] mb-1">Business</div>
+        <div class="text-[11.5px] font-semibold text-gray-500 mb-3">Untuk tim & skala besar</div>
+        <div class="text-[12px] font-semibold text-red-500 line-through mb-1">Rp 150.000</div>
+        <div class="font-extrabold text-[30px] tracking-tight mb-5">Rp 100.000</div>
+        <ul class="space-y-2.5 mb-6 text-[12.5px] font-semibold text-gray-700">
+          <li class="flex items-center gap-2.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> 5.000 request / bulan</li>
+          <li class="flex items-center gap-2.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Rate limit 20 req/menit</li>
+          <li class="flex items-center gap-2.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Dedicated endpoint + SLA 99.9%</li>
+          <li class="flex items-center gap-2.5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Multi-key management + webhook</li>
+        </ul>
+        <button class="order-btn w-full bg-pblue text-white font-extrabold text-[13px] py-3 rounded-xl transition-transform hover:-translate-y-0.5"
+          data-plan="Business" data-price="100000" data-quota="5.000">
+          Order Now
+        </button>
+      </div>
+
+    </div>
+
+    <p class="text-[11.5px] font-medium text-gray-500 mt-6 max-w-2xl">
+      * Key berlaku 30 hari dan dapat diperpanjang kapan saja. Kuota direset setiap tanggal 1. Bukti transfer wajib dikirim ke admin.
+    </p>
+  </section>
+
+</main>
+
+<!-- ============ SHOP PAYMENT MODAL ============ -->
+<div id="shopModal" class="modal-backdrop">
+  <div class="modal-card">
+    <div class="modal-header bg-pgreen">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-green-600 border-2 border-black pulse"></span>
+        <span class="font-extrabold text-[14px]">Konfirmasi Pembayaran</span>
+      </div>
+      <button id="closeShopModal" class="w-8 h-8 bg-white bd-2 rounded-lg sh-sm flex items-center justify-center btn-brutal" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="flex items-start justify-between gap-3 mb-4">
+        <div class="min-w-0">
+          <div class="text-[10px] font-extrabold tracking-[1.5px] text-gray-500 uppercase">Paket</div>
+          <div id="modalPlan" class="font-extrabold text-[18px] tracking-tight leading-tight">-</div>
+          <div id="modalQuota" class="font-mono text-[11px] text-gray-500 mt-0.5">-</div>
+        </div>
+        <div class="text-right shrink-0">
+          <div class="text-[10px] font-extrabold tracking-[1.5px] text-gray-500 uppercase">Total</div>
+          <div id="modalPrice" class="stat-num font-extrabold text-[22px] leading-tight">-</div>
+        </div>
+      </div>
+
+      <div id="qrSection" class="mb-4">
+        <div class="bg-cream bd-2 rounded-xl p-3">
+          <div class="text-[11px] font-extrabold tracking-[1.5px] text-gray-600 mb-2">SCAN QRIS UNTUK BAYAR</div>
+          <div class="flex items-center justify-center bg-white bd-2 rounded-xl p-2">
+            <img id="modalQR" src="https://c.termai.cc/a106/38o.jpg" alt="QRIS Payment"
+              class="w-full max-w-[260px] object-contain rounded-lg"
+              onerror="this.onerror=null;this.replaceWith(Object.assign(document.createElement('div'),{className:'text-center py-8 font-mono text-[11px] text-gray-500',textContent:'QR gagal dimuat. Hubungi admin langsung.'}))" />
+          </div>
+        </div>
+      </div>
+
+      <div id="freeNote" class="hidden bg-pgreen bd-2 rounded-xl p-3 mb-4 text-[11.5px] font-semibold leading-relaxed">
+        Paket <b>Trial gratis</b>. Langsung hubungi admin untuk aktivasi key.
+      </div>
+
+      <div class="bg-pyellow bd-2 rounded-xl p-3 mb-4 text-[11.5px] font-semibold leading-relaxed">
+        <b>Langkah selanjutnya:</b><br>
+        1. Transfer sesuai nominal ke QRIS di atas.<br>
+        2. Screenshot bukti transfer.<br>
+        3. Kirim ke admin via WhatsApp atau Telegram.<br>
+        4. API key akan dikirim setelah diverifikasi (maks. 10 menit).
+      </div>
+
+      <div id="orderSyncStatus" class="hidden mb-4 bg-cream bd-2 rounded-xl p-3 text-[11.5px] font-mono"></div>
+
+      <div class="text-[10px] font-extrabold tracking-[1.5px] text-gray-500 uppercase mb-2">Hubungi Admin</div>
+      <div class="grid grid-cols-2 gap-2.5 mb-3">
+        <button id="modalWA" class="inline-flex items-center justify-center gap-2 px-4 py-3 bg-pgreen bd-2 rounded-xl sh font-extrabold text-[12.5px] btn-brutal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413"/></svg>
+          WhatsApp
+        </button>
+        <button id="modalTG" class="inline-flex items-center justify-center gap-2 px-4 py-3 bg-pyellow bd-2 rounded-xl sh font-extrabold text-[12.5px] btn-brutal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+          Telegram
+        </button>
+      </div>
+
+      <div class="text-[10.5px] text-center font-mono text-gray-500 mt-2">
+        WA: 6281281116706 · TG: @xprimesociety
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMMUNITY -->
+<div id="community" class="community">
+  <div class="bg-white bd-3 rounded-2xl sh-2xl overflow-hidden">
+    <div class="bg-pgreen border-b-[2.5px] border-black px-4 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2 font-extrabold text-[13.5px]">
+        <span class="w-2.5 h-2.5 rounded-full bg-green-600 border-2 border-black pulse"></span> Join Community
+      </div>
+      <button id="closeCommunity" class="w-7 h-7 bg-white bd-2 rounded-lg sh-sm flex items-center justify-center btn-brutal">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-4">
+      <p class="text-[12.5px] font-medium leading-relaxed text-gray-700 mb-4">
+        Gabung ke <strong class="font-extrabold text-black">saluran WhatsApp</strong> &amp; <strong class="font-extrabold text-black">grup Telegram</strong> resmi <b>xs0cietyHUB</b> untuk update fitur terbaru, info maintenance server, dan akses endpoint eksklusif.
+      </p>
+      <div class="flex gap-2.5">
+        <button class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-pgreen bd-2 rounded-xl sh font-extrabold text-[12.5px] btn-brutal" data-action="wa">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413"/></svg>
+          WhatsApp
+        </button>
+        <button class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-pyellow bd-2 rounded-xl sh font-extrabold text-[12.5px] btn-brutal" data-action="tg">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+          Telegram
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =================================================================
+   ⚙️  CONFIG
+================================================================= */
+const CONFIG = {
+  API_BASE: 'https://api-xs0ciety.vercel.app',
+  DISPLAY_HOST: 'api-xs0ciety.my.id',
+  API_KEY: 'kyzz',
+  ADMIN_WA: '6281281116706',
+  ADMIN_TG: 'xprimesociety',
+  COMMUNITY_WA: 'https://whatsapp.com/channel/0029VbDy67LJpe8ZMgaRRI0A',
+  COMMUNITY_TG: 'https://t.me/xprimecty',
+  TRAFFIC_INTERVAL_MS: 7000,
+  HEALTH_INTERVAL_MS: 10000,
+  LATENCY_INTERVAL_MS: 8000
+};
+
+/* =================================================================
+   UTILS
+================================================================= */
+const pad = n => String(n).padStart(2,'0');
+const fmt = n => Number(n).toLocaleString('id-ID');
+const nowStamp = () => { const d = new Date(); return `${pad(d.getHours())}.${pad(d.getMinutes())}.${pad(d.getSeconds())}`; };
+const todayKey = () => new Date().toISOString().slice(0,10);
+const monthKey = () => new Date().toISOString().slice(0,7);
+
+/* =================================================================
+   📊 REQUEST LOG
+================================================================= */
+const RequestLog = {
+  KEY: 'xs0cietyhub.requests.v3',
+  MAX: 500,
+  entries: [],
+  init(){
+    try { this.entries = JSON.parse(localStorage.getItem(this.KEY)) || []; } catch { this.entries = []; }
+    this.render();
+  },
+  save(){
+    if (this.entries.length > this.MAX) this.entries = this.entries.slice(-this.MAX);
+    try { localStorage.setItem(this.KEY, JSON.stringify(this.entries)); } catch {}
+  },
+  record({ url, method, status, ms, ok, size = 0, source = 'api' }){
+    this.entries.push({ t: Date.now(), url, method, status, ms, ok, size, source });
+    this.save();
+    this.render();
+  },
+  stats(){
+    const tk = todayKey(), mk = monthKey();
+    let today = 0, month = 0, total = 0;
+    for (const e of this.entries){
+      const d = new Date(e.t);
+      const ek = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+      const em = `${d.getFullYear()}-${pad(d.getMonth()+1)}`;
+      total++;
+      if (ek === tk) today++;
+      if (em === mk) month++;
+    }
+    return { today, month, total };
+  },
+  recent(n = 25){ return this.entries.slice(-n); },
+  render(){
+    const s = this.stats();
+    const tEl = document.getElementById('statToday');
+    const mEl = document.getElementById('statMonthly');
+    const aEl = document.getElementById('statTotal');
+    if (tEl) tEl.textContent = fmt(s.today);
+    if (mEl) mEl.textContent = fmt(s.month);
+    if (aEl) aEl.textContent = fmt(s.total);
+    const logCount = document.getElementById('logCount');
+    if (logCount) logCount.textContent = `${s.total} entries`;
+  }
+};
+
+/* =================================================================
+   🌐 TRACKED FETCH
+================================================================= */
+async function trackedFetch(url, options = {}){
+  const method = (options.method || 'GET').toUpperCase();
+  const start = performance.now();
+  let status = 0, ok = false, size = 0;
+  try {
+    const res = await fetch(url, { cache: 'no-store', ...options });
+    status = res.status;
+    ok = res.ok;
+    try {
+      const clone = res.clone();
+      const buf = await clone.arrayBuffer();
+      size = buf.byteLength;
+    } catch {}
+    const ms = Math.round(performance.now() - start);
+    RequestLog.record({ url, method, status, ms, ok, size, source: 'api' });
+    return res;
+  } catch (err){
+    const ms = Math.round(performance.now() - start);
+    RequestLog.record({ url, method, status: 'ERR', ms, ok: false, size: 0, source: 'api' });
+    throw err;
+  }
+}
+
+/* =================================================================
+   API CLIENT
+================================================================= */
+const API = {
+  base(){ return CONFIG.API_BASE.replace(/\/$/, ''); },
+  async health(){
+    const candidates = ['/api/health', '/health', '/api/ping', '/api/status'];
+    for (const p of candidates){
+      try {
+        const res = await trackedFetch(this.base() + p + '?_=' + Date.now(), {
+          signal: AbortSignal.timeout ? AbortSignal.timeout(6000) : undefined
+        });
+        return { ok: true, status: res.status, path: p };
+      } catch {}
+    }
+    return { ok: false };
+  },
+  async endpoints(){
+    const candidates = ['/api/endpoints', '/api/docs', '/api/routes', '/endpoints'];
+    for (const p of candidates){
+      try {
+        const res = await trackedFetch(this.base() + p + '?apikey=' + CONFIG.API_KEY, {
+          signal: AbortSignal.timeout ? AbortSignal.timeout(6000) : undefined
+        });
+        if (!res.ok) continue;
+        const ct = res.headers.get('content-type') || '';
+        if (!ct.includes('json')) continue;
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : (data.endpoints || data.data || []);
+        if (Array.isArray(list) && list.length) return list;
+      } catch {}
+    }
+    return null;
+  },
+  async submitOrder(order){
+    try {
+      const res = await trackedFetch(this.base() + '/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...order, apikey: CONFIG.API_KEY, source: 'xs0cietyhub-dashboard' }),
+        signal: AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined
+      });
+      return { ok: res.ok, status: res.status };
+    } catch (e){
+      return { ok: false, error: e.message };
+    }
+  },
+  async fetchOrders(){
+    // Coba beberapa endpoint yang mungkin
+    const candidates = [
+      '/api/orders?apikey=' + CONFIG.API_KEY,
+      '/api/order/list?apikey=' + CONFIG.API_KEY,
+      '/api/order?apikey=' + CONFIG.API_KEY
+    ];
+    for (const p of candidates){
+      try {
+        const res = await trackedFetch(this.base() + p + '&_=' + Date.now(), {
+          signal: AbortSignal.timeout ? AbortSignal.timeout(6000) : undefined
+        });
+        if (!res.ok) continue;
+        const ct = res.headers.get('content-type') || '';
+        if (!ct.includes('json')) continue;
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : (data.orders || data.data || null);
+        if (Array.isArray(list)) return list;
+      } catch {}
+    }
+    return null;
+  }
+};
+
+/* =================================================================
+   SIDEBAR + SPA NAV
+================================================================= */
+const body = document.body;
+document.getElementById('burger').addEventListener('click', () => body.classList.toggle('sidebar-open'));
+document.getElementById('overlay').addEventListener('click', () => body.classList.remove('sidebar-open'));
+
+const navItems = document.querySelectorAll('.nav-item');
+const views = document.querySelectorAll('.view');
+
+function switchView(name){
+  views.forEach(v => v.classList.remove('active'));
+  const t = document.getElementById('view-' + name);
+  (t || document.getElementById('view-dashboard')).classList.add('active');
+  navItems.forEach(n => n.classList.toggle('active', n.dataset.view === name));
+  if (window.innerWidth < 1024) body.classList.remove('sidebar-open');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (name === 'docs' && !Docs.loaded) Docs.load();
+  if (name === 'shop') {
+    Orders.render();
+    // Auto-sync sekali di awal
+    if (!Orders.syncedOnce){
+      Orders.syncedOnce = true;
+      setTimeout(() => autoSyncOrders(false), 400);
+    }
+  }
+}
+navItems.forEach(item => item.addEventListener('click', e => { e.preventDefault(); switchView(item.dataset.view); }));
+
+/* =================================================================
+   REAL CLOCK
+================================================================= */
+const clockEl = document.getElementById('clock');
+const statusTimeEl = document.getElementById('statusTime');
+const greetingEl = document.getElementById('greeting');
+const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+function getGreeting(h){
+  if (h < 4) return 'Late Night, Dev';
+  if (h < 11) return 'Good Morning, Dev';
+  if (h < 15) return 'Good Afternoon, Dev';
+  if (h < 19) return 'Good Evening, Dev';
+  return 'Good Night, Dev';
+}
+function tickClock(){
+  const d = new Date();
+  if (clockEl) clockEl.textContent = `${pad(d.getHours())}.${pad(d.getMinutes())}.${pad(d.getSeconds())}`;
+  if (statusTimeEl) statusTimeEl.textContent = `${HARI[d.getDay()]}, ${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()} pukul ${pad(d.getHours())}.${pad(d.getMinutes())}.${pad(d.getSeconds())}`;
+  if (greetingEl) greetingEl.textContent = getGreeting(d.getHours());
+}
+tickClock(); setInterval(tickClock, 1000);
+
+/* =================================================================
+   ONLINE STATUS
+================================================================= */
+const clusterDot = document.getElementById('clusterDot');
+const clusterText = document.getElementById('clusterText');
+const statusDot = document.getElementById('statusDot');
+const statusText = document.getElementById('statusText');
+function updateOnlineStatus(){
+  const online = navigator.onLine;
+  const color = online ? 'bg-green-600' : 'bg-red-500';
+  [clusterDot, statusDot].forEach(el => {
+    if (!el) return;
+    el.classList.remove('bg-green-600','bg-red-500');
+    el.classList.add(color);
+  });
+  const txt = online ? 'CLUSTER ONLINE' : 'CLUSTER OFFLINE';
+  [clusterText, statusText].forEach(el => { if (el) el.textContent = txt; });
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+
+/* =================================================================
+   🚦 TRAFFIC LOG
+================================================================= */
+const logBody = document.getElementById('logBody');
+
+function codeChip(code){
+  if (code === 'ERR' || code === 0) return 'bg-red-400 text-white';
+  const n = parseInt(code, 10);
+  if (n >= 500) return 'bg-red-400 text-white';
+  if (n >= 400) return 'bg-porange';
+  if (n >= 300) return 'bg-pyellow';
+  return 'bg-pgreen';
+}
+
+function renderLogEntry({ code, method, url, ms, t }){
+  const wrap = document.createElement('div');
+  wrap.className = 'log-in bg-white bd-2 rounded-xl sh-sm p-3 sm:p-3.5';
+  wrap.innerHTML = `
+    <div class="flex items-center justify-between gap-3 mb-2">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="px-2.5 py-0.5 ${codeChip(code)} bd-2 rounded-full font-mono font-bold text-[11px] leading-tight">[${code}]</span>
+        <span class="px-2.5 py-0.5 bg-pyellow bd-2 rounded-full font-mono font-bold text-[11px] leading-tight">${method}</span>
+        ${ms!=null ? `<span class="px-2 py-0.5 bg-white bd-2 rounded-full font-mono font-bold text-[10.5px] leading-tight text-gray-600">${ms}ms</span>` : ''}
+      </div>
+      <span class="font-mono font-medium text-[11px] text-gray-500 whitespace-nowrap">${t}</span>
+    </div>
+    <div class="font-mono text-[12px] text-black break-all leading-snug">${url}</div>
+  `;
+  return wrap;
+}
+
+function prettyPath(fullUrl){
+  try { const u = new URL(fullUrl); return u.pathname + (u.search ? u.search.slice(0, 60) + (u.search.length > 60 ? '…' : '') : ''); }
+  catch { return fullUrl; }
+}
+
+function pushLog(entry){
+  const empty = logBody.querySelector('.italic');
+  if (empty) empty.remove();
+  logBody.appendChild(renderLogEntry(entry));
+  while (logBody.children.length > 30) logBody.removeChild(logBody.firstChild);
+  logBody.scrollTop = logBody.scrollHeight;
+}
+
+async function fireTraffic(){
+  if (!navigator.onLine) return;
+
+  let target, method;
+  const pool = window.__docsEndpoints;
+  if (pool && pool.length){
+    const ep = pool[Math.floor(Math.random() * pool.length)];
+    const path = (ep.path || '/').replace('{key}', CONFIG.API_KEY).replace('{URL}', 'https://instagram.com/reel/test');
+    target = API.base() + path;
+    method = ep.method || 'GET';
+  } else {
+    target = API.base() + '/?_=' + Date.now();
+    method = 'GET';
+  }
+
+  const start = performance.now();
+  let code = 'ERR', ms = null;
+  try {
+    const res = await trackedFetch(target, {
+      method,
+      signal: AbortSignal.timeout ? AbortSignal.timeout(10000) : undefined
+    });
+    code = res.status;
+    ms = Math.round(performance.now() - start);
+  } catch {
+    code = 'ERR';
+    ms = Math.round(performance.now() - start);
+  }
+  pushLog({ code, method, url: prettyPath(target), ms, t: nowStamp() });
+}
+
+/* =================================================================
+   📖 DOCS — FALLBACK ENDPOINT LIST
+================================================================= */
+const DOCS_FALLBACK = [
+  {
+    category: 'Video Downloader',
+    name: 'Facebook Video',
+    desc: 'Download video Facebook dengan berbagai kualitas (Full HD 1080p, HD 720p, 480p, MP4, Audio M4A).',
+    path: '/api/v2/facebook',
+    method: 'POST'
+  },
+  {
+    category: 'Video Downloader',
+    name: 'Instagram',
+    desc: 'Download video/foto Instagram — Reels, Post, Story, dan IGTV.',
+    path: '/api/v2/instagram?url={URL}',
+    method: 'GET'
+  },
+  {
+    category: 'Video Downloader',
+    name: 'TikTok',
+    desc: 'Download video TikTok tanpa watermark + ekstrak audio MP3.',
+    path: '/api/v2/tiktok',
+    method: 'POST'
+  },
+  {
+    category: 'Video Downloader',
+    name: 'Twitter / X',
+    desc: 'Download video dari tweet Twitter/X beserta audio MP3.',
+    path: '/api/v2/twitter',
+    method: 'POST'
+  },
+  {
+    category: 'Video Downloader',
+    name: 'YouTube',
+    desc: 'Download video/audio YouTube dengan pilihan kualitas lengkap (1080p / 720p / 480p / m4a / webm).',
+    path: '/api/v2/youtube',
+    method: 'POST'
+  },
+  {
+    category: 'Music Downloader',
+    name: 'Spotify',
+    desc: 'Download lagu Spotify jadi file MP3 lengkap dengan metadata.',
+    path: '/api/v2/spotify',
+    method: 'POST'
+  },
+  {
+    category: 'Music Downloader',
+    name: 'SoundCloud',
+    desc: 'Download track dari SoundCloud dalam berbagai format audio.',
+    path: '/api/v2/soundcloud',
+    method: 'POST'
+  },
+  {
+    category: 'Upload & AI Tools',
+    name: 'File Upload',
+    desc: 'Upload file ke cloud (Litterbox) — max 50 MB, durasi 1h / 12h / 24h / 72h.',
+    path: '/api/v2/upload',
+    method: 'POST'
+  },
+  {
+    category: 'Upload & AI Tools',
+    name: 'Face Swap',
+    desc: 'Tukar wajah dengan AI — upload source & target image.',
+    path: '/api/v2/faceswap',
+    method: 'POST'
+  },
+  {
+    category: 'Upload & AI Tools',
+    name: 'Voice Changer',
+    desc: 'Ubah suara audio kamu ke berbagai voice model (30+ pilihan: US/UK/AU).',
+    path: '/api/v2/voice-changer',
+    method: 'POST'
+  }
+];
+
+const Docs = {
+  loaded: false,
+  data: [],
+  async load(){
+    this.loaded = true;
+    const hostEl = document.getElementById('docsApiHost');
+    if (hostEl) hostEl.textContent = CONFIG.DISPLAY_HOST;
+
+    let source = null;
+    try {
+      const remote = await API.endpoints();
+      if (remote && Array.isArray(remote) && remote.length){
+        source = remote.map(r => ({
+          category: r.category || r.cat || 'General',
+          name: r.name || r.title || r.endpoint || 'Untitled',
+          desc: r.desc || r.description || '',
+          path: r.path || r.url || r.endpoint || '/',
+          method: (r.method || 'GET').toUpperCase()
+        }));
+      }
+    } catch {}
+
+    if (!source) source = DOCS_FALLBACK;
+
+    this.data = source;
+    window.__docsEndpoints = this.data;
+
+    const catSet = new Set(this.data.map(d => d.category));
+    document.getElementById('docsCountEP').textContent = this.data.length;
+    document.getElementById('docsCountCat').textContent = catSet.size;
+
+    document.getElementById('docsStatus').style.display = 'none';
+    this.render(this.data);
+  },
+  render(list){
+    const listEl = document.getElementById('docsList');
+    if (!list.length){ listEl.innerHTML = ''; return; }
+
+    const groups = {};
+    list.forEach(e => { (groups[e.category] = groups[e.category] || []).push(e); });
+
+    let html = '';
+    for (const [cat, items] of Object.entries(groups)){
+      html += `<div class="mt-4 mb-2"><span class="inline-flex items-center gap-2 px-4 py-2 bg-pyellow bd-2 rounded-xl sh font-extrabold text-[13px] tracking-wide">${cat}</span></div>`;
+      html += items.map(e => `
+        <div class="bg-white bd rounded-2xl sh-lg p-5 mb-3">
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 mb-2 flex-wrap">
+                <span class="method-badge method-${e.method}">${e.method}</span>
+                <span class="font-extrabold text-[16px] tracking-tight leading-tight">${e.name}</span>
+              </div>
+              <div class="text-[12.5px] font-medium text-gray-600 leading-relaxed mb-2">${e.desc}</div>
+              <div class="font-mono text-[11px] text-gray-700 bg-cream bd-2 rounded-lg px-3 py-2 break-all">${e.path}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 mt-3 pt-3 border-t-2 border-dashed border-gray-300">
+            <span class="text-[10px] font-extrabold tracking-[1.5px] text-gray-500">AUTH:</span>
+            <span class="font-mono text-[10.5px] text-gray-600 bg-pgreen px-2 py-0.5 rounded border-2 border-black">x-api-key</span>
+          </div>
+        </div>
+      `).join('');
+    }
+    listEl.innerHTML = html;
+  }
+};
+
+/* =================================================================
+   🧪 SYSTEM MONITOR
+================================================================= */
+const START_TIME = performance.now();
+const uptimeEl = document.getElementById('uptimeValue');
+function renderUptime(){
+  if (!uptimeEl) return;
+  const s = Math.floor((performance.now() - START_TIME) / 1000);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const ss = s % 60;
+  uptimeEl.textContent = h > 0 ? `${h}h ${m}m ${ss}s` : (m > 0 ? `${m}m ${ss}s` : `${ss}s`);
+}
+renderUptime(); setInterval(renderUptime, 1000);
+
+const apiStatusText = document.getElementById('apiStatusText');
+const apiStatusDot = document.getElementById('apiStatusDot');
+const apiModeBadge = document.getElementById('apiModeBadge');
+async function checkApiService(){
+  if (!navigator.onLine){
+    apiStatusText.textContent = 'OFFLINE';
+    apiStatusDot.className = 'w-3 h-3 rounded-full bg-red-500 border-2 border-black';
+    apiModeBadge.textContent = 'Tidak ada koneksi';
+    return;
+  }
+  const start = performance.now();
+  try {
+    await trackedFetch(API.base() + '/?_=' + Date.now(), {
+      signal: AbortSignal.timeout ? AbortSignal.timeout(6000) : undefined
+    });
+    const ms = Math.round(performance.now() - start);
+    apiStatusText.textContent = 'ONLINE';
+    apiStatusDot.className = 'w-3 h-3 rounded-full bg-green-500 border-2 border-black pulse';
+    apiModeBadge.textContent = `Mode: PRODUCTION · ${ms}ms`;
+  } catch {
+    apiStatusText.textContent = 'UNREACHABLE';
+    apiStatusDot.className = 'w-3 h-3 rounded-full bg-orange-400 border-2 border-black';
+    apiModeBadge.textContent = `Gagal hubungi ${CONFIG.DISPLAY_HOST}`;
+  }
+}
+checkApiService(); setInterval(checkApiService, CONFIG.HEALTH_INTERVAL_MS);
+
+const latencyEl = document.getElementById('latencyValue');
+const latencyBadge = document.getElementById('latencyBadge');
+async function measureLatency(){
+  if (!navigator.onLine){ latencyEl.textContent = 'OFFLINE'; return; }
+  const start = performance.now();
+  try {
+    await trackedFetch(API.base() + '/?_lat=' + Date.now(), {
+      signal: AbortSignal.timeout ? AbortSignal.timeout(6000) : undefined
+    });
+    const ms = Math.round(performance.now() - start);
+    latencyEl.textContent = ms + ' ms';
+    latencyBadge.textContent = ms < 100 ? 'Sangat cepat' : ms < 300 ? 'Cepat' : ms < 800 ? 'Sedang' : 'Lambat';
+  } catch {
+    latencyEl.textContent = '—';
+    latencyBadge.textContent = 'Gagal mengukur ping ke API';
+  }
+}
+measureLatency(); setInterval(measureLatency, CONFIG.LATENCY_INTERVAL_MS);
+
+const memEl = document.getElementById('memoryValue');
+const memBadge = document.getElementById('memoryBadge');
+const docsRAM = document.getElementById('docsRAM');
+function renderMemory(){
+  const fmtB = b => b < 1024 ? b + ' B' : b < 1048576 ? (b/1024).toFixed(2) + ' KB' : b < 1073741824 ? (b/1048576).toFixed(2) + ' MB' : (b/1073741824).toFixed(2) + ' GB';
+  if (performance.memory){
+    const used = performance.memory.usedJSHeapSize;
+    const total = performance.memory.jsHeapSizeLimit;
+    const allocated = performance.memory.totalJSHeapSize;
+    memEl.textContent = fmtB(used);
+    memBadge.textContent = `Heap aktif ${fmtB(allocated)} · Limit ${fmtB(total)}`;
+    if (docsRAM) docsRAM.textContent = fmtB(used);
+  } else {
+    memEl.textContent = 'N/A';
+    memBadge.textContent = 'API performance.memory tidak tersedia';
+    if (docsRAM) docsRAM.textContent = 'N/A';
+  }
+}
+renderMemory(); setInterval(renderMemory, 2000);
+
+const cpuEl = document.getElementById('cpuValue');
+const cpuBadge = document.getElementById('cpuBadge');
+const docsCPU = document.getElementById('docsCPU');
+const cores = navigator.hardwareConcurrency || null;
+if (docsCPU) docsCPU.textContent = cores ? cores : 'N/A';
+
+let frames = 0, lastFpsTime = performance.now(), currentFps = 60;
+(function fpsLoop(){
+  frames++;
+  const now = performance.now();
+  if (now - lastFpsTime >= 1000){
+    currentFps = frames;
+    frames = 0;
+    lastFpsTime = now;
+    const loadPct = Math.max(0, Math.min(100, Math.round(100 - (currentFps / 60) * 100)));
+    cpuEl.textContent = `${currentFps} FPS`;
+    cpuBadge.textContent = `Load ${loadPct}% · ${cores || '?'} cores`;
+    if (docsCPU) docsCPU.textContent = cores ? cores : 'N/A';
+  }
+  requestAnimationFrame(fpsLoop);
+})();
+
+const platformEl = document.getElementById('platformValue');
+const platformBadge = document.getElementById('platformBadge');
+(function detectPlatform(){
+  let os = 'Unknown';
+  const ua = navigator.userAgent;
+  if (/Windows NT 10/.test(ua)) os = 'Windows 10/11';
+  else if (/Windows/.test(ua)) os = 'Windows';
+  else if (/Mac OS X/.test(ua) && !/iPhone|iPad/.test(ua)) os = 'macOS';
+  else if (/Android/.test(ua)) os = 'Android';
+  else if (/iPhone|iPad|iPod/.test(ua)) os = 'iOS';
+  else if (/Linux/.test(ua)) os = 'Linux';
+  else if (navigator.userAgentData?.platform) os = navigator.userAgentData.platform;
+  const isMobile = /Mobi|Android|iPhone/i.test(ua);
+  platformEl.textContent = os;
+  platformBadge.textContent = `${isMobile ? 'Mobile' : 'Desktop'} · ${navigator.vendor || 'Browser'}`;
+})();
+
+const connEl = document.getElementById('connValue');
+const connBadge = document.getElementById('connBadge');
+function renderConnection(){
+  const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const online = navigator.onLine;
+  if (!online){
+    connEl.textContent = 'OFFLINE';
+    connBadge.textContent = 'Tidak ada koneksi internet';
+    return;
+  }
+  if (c){
+    connEl.textContent = (c.effectiveType || 'unknown').toUpperCase();
+    const dl = c.downlink ? `${c.downlink} Mbps` : '—';
+    const rtt = c.rtt ? `${c.rtt} ms` : '—';
+    connBadge.textContent = `Down ${dl} · RTT ${rtt}${c.saveData ? ' · Save-Data' : ''}`;
+  } else {
+    connEl.textContent = 'ONLINE';
+    connBadge.textContent = 'Network Information API tidak tersedia';
+  }
+}
+renderConnection(); setInterval(renderConnection, 3000);
+
+const batteryCard = document.getElementById('batteryCard');
+const batteryValue = document.getElementById('batteryValue');
+const batteryBadge = document.getElementById('batteryBadge');
+if (navigator.getBattery){
+  navigator.getBattery().then(b => {
+    batteryCard.classList.remove('hidden');
+    const update = () => {
+      batteryValue.textContent = Math.round(b.level * 100) + '%';
+      batteryBadge.textContent = b.charging ? 'Sedang mengisi daya' : 'Menggunakan baterai';
+    };
+    update();
+    b.addEventListener('levelchange', update);
+    b.addEventListener('chargechange', update);
+  }).catch(() => {});
+}
+
+/* =================================================================
+   🛒 SHOP
+================================================================= */
+const ORDERS_KEY = 'xs0cietyhub.orders.v2';
+const LAST_SYNC_KEY = 'xs0cietyhub.lastSync';
+
+const Orders = {
+  local: [],
+  syncedOnce: false,
+  init(){
+    try { this.local = JSON.parse(localStorage.getItem(ORDERS_KEY)) || []; } catch { this.local = []; }
+    this.render();
+    this.renderLastSync();
+  },
+  save(){
+    try { localStorage.setItem(ORDERS_KEY, JSON.stringify(this.local)); } catch {}
+  },
+  renderLastSync(){
+    const el = document.getElementById('lastSyncTime');
+    if (!el) return;
+    try {
+      const iso = localStorage.getItem(LAST_SYNC_KEY);
+      if (!iso){ el.textContent = 'Belum pernah sync'; return; }
+      const d = new Date(iso);
+      el.textContent = `Sync terakhir: ${pad(d.getHours())}.${pad(d.getMinutes())}.${pad(d.getSeconds())}`;
+    } catch { el.textContent = 'Belum pernah sync'; }
+  },
+  render(){
+    const box = document.getElementById('myOrders');
+    if (!box) return;
+    if (!this.local.length){
+      box.className = 'font-mono text-[12px] text-gray-500';
+      box.textContent = 'Belum ada order. Pilih paket di bawah untuk mulai.';
+      return;
+    }
+    box.className = 'flex flex-col gap-2';
+    box.innerHTML = this.local.slice(0, 8).map(o => {
+      const statusColor = o.status === 'synced' ? 'bg-pgreen' : (o.status === 'failed' ? 'bg-red-300' : 'bg-porange');
+      const statusText  = o.status === 'synced' ? 'SYNCED' : (o.status === 'failed' ? 'OFFLINE' : 'PENDING');
+      const sourceTag = o.from === 'server' ? ' <span class="text-[9.5px] text-gray-500">(server)</span>' : '';
+      return `
+      <div class="bg-cream bd-2 rounded-xl p-3">
+        <div class="flex items-center justify-between gap-2 mb-1 flex-wrap">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 bg-pyellow bd-2 rounded-full font-extrabold text-[10px] tracking-wide">${o.plan}</span>
+            <span class="px-2 py-0.5 ${statusColor} bd-2 rounded-full font-extrabold text-[10px] tracking-wide">${statusText}</span>
+            ${sourceTag}
+          </div>
+          <span class="font-mono text-[10.5px] text-gray-500">${new Date(o.date).toLocaleString('id-ID')}</span>
+        </div>
+        <div class="font-mono text-[11px] text-gray-600">${o.quota} req/bulan · ${o.price === 0 ? 'GRATIS' : 'Rp ' + o.price.toLocaleString('id-ID')}</div>
+      </div>`;
+    }).join('');
+    if (this.local.length > 8){
+      box.innerHTML += `<div class="text-[10.5px] font-mono text-gray-500 text-center pt-1">+${this.local.length - 8} order lain</div>`;
+    }
+  },
+
+  // ─── Core: Sync server ───────────────────────────────────────
+  async syncFromServer(){
+    const remote = await API.fetchOrders();
+
+    // Kasus: server gak balikin array valid
+    if (!Array.isArray(remote)){
+      return {
+        ok: false,
+        reason: 'no_endpoint',
+        message: 'Server belum menyediakan endpoint /api/orders. Order tetap tersimpan lokal.'
+      };
+    }
+
+    // Merge: local dulu, tambahin yang dari server kalau belum ada
+    const seen = new Set(this.local.map(o => o.id));
+    let added = 0, updated = 0;
+    for (const r of remote){
+      const id = r.id || r.order_id || (r.plan + '_' + r.date);
+      if (!id) continue;
+      if (seen.has(id)){
+        // update status kalau misal server bilang "paid"
+        const idx = this.local.findIndex(o => o.id === id);
+        if (idx >= 0 && r.status && this.local[idx].status !== r.status){
+          this.local[idx].status = r.status;
+          updated++;
+        }
+        continue;
+      }
+      this.local.unshift({
+        id,
+        plan: r.plan || 'Unknown',
+        price: r.price || 0,
+        quota: r.quota || r.quota_str || '-',
+        date: r.date || r.created_at || new Date().toISOString(),
+        status: r.status || 'synced',
+        from: 'server'
+      });
+      added++;
+    }
+    if (added || updated) this.save();
+    this.render();
+    return { ok: true, added, updated, total: remote.length };
+  }
+};
+
+Orders.init();
+
+// ─── Sync button + notif helpers ──────────────────────────────
+function showSyncNotif(kind, message){
+  const el = document.getElementById('syncNotif');
+  if (!el) return;
+  el.classList.remove('hidden');
+  if (kind === 'ok')       el.className = 'mb-3 bg-pgreen bd-2 rounded-xl p-3 text-[11.5px] font-semibold';
+  else if (kind === 'warn') el.className = 'mb-3 bg-pyellow bd-2 rounded-xl p-3 text-[11.5px] font-semibold';
+  else                      el.className = 'mb-3 bg-porange bd-2 rounded-xl p-3 text-[11.5px] font-semibold';
+  el.textContent = message;
+
+  // Auto-hide setelah 6 detik
+  clearTimeout(el._hideTimer);
+  el._hideTimer = setTimeout(() => el.classList.add('hidden'), 6000);
+}
+
+function setSyncBtnState(state){
+  // state: 'idle' | 'loading'
+  const btn   = document.getElementById('syncOrders');
+  const icon  = document.getElementById('syncIcon');
+  const label = document.getElementById('syncLabel');
+  if (!btn || !icon || !label) return;
+  if (state === 'loading'){
+    btn.disabled = true;
+    icon.classList.add('spin');
+    label.textContent = 'Syncing...';
+  } else {
+    btn.disabled = false;
+    icon.classList.remove('spin');
+    label.textContent = 'Sync Server';
+  }
+}
+
+async function autoSyncOrders(showNotifWhenEmpty = true){
+  if (!navigator.onLine){
+    if (showNotifWhenEmpty) showSyncNotif('warn', '⚠ Offline — coba lagi saat koneksi kembali.');
+    return;
+  }
+  setSyncBtnState('loading');
+  try {
+    const res = await Orders.syncFromServer();
+    if (res.ok){
+      // update timestamp
+      localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
+      Orders.renderLastSync();
+
+      if (res.total === 0){
+        if (showNotifWhenEmpty) showSyncNotif('warn', 'ℹ Server tidak memiliki order apapun. Coba lakukan order dulu.');
+      } else if (res.added === 0 && res.updated === 0){
+        if (showNotifWhenEmpty) showSyncNotif('ok', `✓ Sudah sinkron. ${res.total} order di server, tidak ada yang baru.`);
+      } else {
+        const parts = [];
+        if (res.added)   parts.push(`${res.added} baru`);
+        if (res.updated) parts.push(`${res.updated} diupdate`);
+        showSyncNotif('ok', `✓ Sync berhasil — ${parts.join(', ')}. Total ${res.total} order di server.`);
+      }
+    } else {
+      // Server gak punya endpoint
+      showSyncNotif('err', '✕ ' + res.message + ' Order lokal kamu tetap aman.');
+    }
+  } catch (e){
+    showSyncNotif('err', '✕ Gagal sync: ' + (e.message || 'unknown error'));
+  } finally {
+    setSyncBtnState('idle');
+  }
+}
+
+document.getElementById('syncOrders')?.addEventListener('click', () => autoSyncOrders(true));
+
+/* ─── Modal Order ─────────────────────────────────────────── */
+const shopModal = document.getElementById('shopModal');
+const closeShopModal = document.getElementById('closeShopModal');
+const modalPlan = document.getElementById('modalPlan');
+const modalQuota = document.getElementById('modalQuota');
+const modalPrice = document.getElementById('modalPrice');
+const modalWA = document.getElementById('modalWA');
+const modalTG = document.getElementById('modalTG');
+const qrSection = document.getElementById('qrSection');
+const freeNote = document.getElementById('freeNote');
+const orderSyncStatus = document.getElementById('orderSyncStatus');
+
+function openShopModal(){ shopModal.classList.add('show'); document.body.style.overflow = 'hidden'; }
+function closeModal(){ shopModal.classList.remove('show'); document.body.style.overflow = ''; }
+closeShopModal.addEventListener('click', closeModal);
+shopModal.addEventListener('click', e => { if (e.target === shopModal) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && shopModal.classList.contains('show')) closeModal(); });
+
+document.querySelectorAll('.order-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const plan = btn.dataset.plan;
+    const price = parseInt(btn.dataset.price, 10);
+    const quota = btn.dataset.quota;
+    const isFree = price === 0;
+
+    modalPlan.textContent = plan;
+    modalQuota.textContent = `${quota} request / bulan`;
+    modalPrice.textContent = isFree ? 'GRATIS' : 'Rp ' + price.toLocaleString('id-ID');
+    qrSection.style.display = isFree ? 'none' : 'block';
+    freeNote.classList.toggle('hidden', !isFree);
+
+    orderSyncStatus.classList.add('hidden');
+    orderSyncStatus.textContent = '';
+
+    const orderPayload = {
+      id: 'ord_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      plan, price, quota,
+      date: new Date().toISOString(),
+      status: 'pending',
+      contact: null
+    };
+
+    Orders.local.unshift(orderPayload);
+    Orders.save();
+    Orders.render();
+
+    orderSyncStatus.classList.remove('hidden');
+    orderSyncStatus.textContent = `⟳ Mengirim order ke server...`;
+    const res = await API.submitOrder(orderPayload);
+    if (res.ok){
+      orderPayload.status = 'synced';
+      orderSyncStatus.className = 'mb-4 bg-pgreen bd-2 rounded-xl p-3 text-[11.5px] font-mono';
+      orderSyncStatus.textContent = `✓ Order tercatat di server (HTTP ${res.status})`;
+    } else {
+      orderPayload.status = 'failed';
+      orderSyncStatus.className = 'mb-4 bg-porange bd-2 rounded-xl p-3 text-[11.5px] font-mono';
+      orderSyncStatus.textContent = `⚠ Gagal kirim ke server${res.error ? ' · ' + res.error : ''}. Tetap lanjut ke admin ya.`;
+    }
+    Orders.save();
+    Orders.render();
+
+    const msg = encodeURIComponent(
+      `Halo Admin xs0cietyHUB,\n\nSaya mau order API key:\n` +
+      `• Order ID : ${orderPayload.id}\n` +
+      `• Paket    : ${plan}\n` +
+      `• Kuota    : ${quota} req/bulan\n` +
+      `• Harga    : ${isFree ? 'GRATIS (Trial)' : 'Rp ' + price.toLocaleString('id-ID')}\n\n` +
+      `${isFree ? 'Mohon aktivasi key untuk saya. Terima kasih!' : 'Bukti transfer saya lampirkan di chat ini. Mohon segera diproses.'}`
+    );
+
+    modalWA.onclick = () => {
+      window.open(`https://wa.me/${CONFIG.ADMIN_WA}?text=${msg}`, '_blank');
+      orderPayload.contact = 'whatsapp';
+      Orders.save();
+      setTimeout(closeModal, 500);
+    };
+    modalTG.onclick = () => {
+      window.open(`https://t.me/${CONFIG.ADMIN_TG}`, '_blank');
+      orderPayload.contact = 'telegram';
+      Orders.save();
+      setTimeout(closeModal, 500);
+    };
+
+    openShopModal();
+  });
+});
+
+/* =================================================================
+   🚀 BOOTSTRAP
+================================================================= */
+(async function boot(){
+  RequestLog.init();
+  updateOnlineStatus();
+
+  const health = await API.health();
+  if (health.ok){
+    apiStatusText.textContent = 'ONLINE';
+    apiStatusDot.className = 'w-3 h-3 rounded-full bg-green-500 border-2 border-black pulse';
+    apiModeBadge.textContent = `Mode: PRODUCTION · path ${health.path}`;
+  } else {
+    apiStatusText.textContent = 'UNREACHABLE';
+    apiStatusDot.className = 'w-3 h-3 rounded-full bg-orange-400 border-2 border-black';
+    apiModeBadge.textContent = `Gagal hubungi ${CONFIG.DISPLAY_HOST}`;
+  }
+
+  const remote = await API.endpoints();
+  window.__docsEndpoints = (remote && remote.length) ? remote.map(r => ({
+    category: r.category || r.cat || 'General',
+    name: r.name || r.title || 'Untitled',
+    desc: r.desc || r.description || '',
+    path: r.path || r.url || '/',
+    method: (r.method || 'GET').toUpperCase()
+  })) : DOCS_FALLBACK;
+
+  fireTraffic();
+  setInterval(fireTraffic, CONFIG.TRAFFIC_INTERVAL_MS);
+
+  const recent = RequestLog.recent(6);
+  if (recent.length){
+    const empty = logBody.querySelector('.italic');
+    if (empty) empty.remove();
+    recent.forEach(e => pushLog({
+      code: e.status, method: e.method, url: prettyPath(e.url), ms: e.ms,
+      t: (() => { const d = new Date(e.t); return `${pad(d.getHours())}.${pad(d.getMinutes())}.${pad(d.getSeconds())}`; })()
+    }));
+  }
+})();
+
+/* =================================================================
+   👥 COMMUNITY
+================================================================= */
+const community = document.getElementById('community');
+const closeCommunity = document.getElementById('closeCommunity');
+const COMMUNITY_SEEN_KEY = 'xs0cietyhub.community.seen';
+if (!sessionStorage.getItem(COMMUNITY_SEEN_KEY)){
+  setTimeout(() => community.classList.add('show'), 1500);
+}
+closeCommunity.addEventListener('click', () => {
+  community.classList.remove('show');
+  sessionStorage.setItem(COMMUNITY_SEEN_KEY, '1');
+});
+community.querySelectorAll('button[data-action]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const url = btn.dataset.action === 'wa' ? CONFIG.COMMUNITY_WA : CONFIG.COMMUNITY_TG;
+    window.open(url, '_blank');
+  });
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) RequestLog.save();
+});
+</script>
+</body>
+</html>
