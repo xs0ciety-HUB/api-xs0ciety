@@ -397,12 +397,10 @@
         </div>
       </div>
 
-      <!-- Info bar: jelasin fungsi sync -->
       <div class="bg-cream bd-2 rounded-xl p-3 mb-3 text-[11px] font-medium leading-relaxed text-gray-700">
         <b class="text-black">ℹ Fungsi Sync Server:</b> Tarik daftar order terbaru dari server ke dashboard ini. Berguna kalau kamu order dari device/browser lain, atau mau refresh status order yang sudah <b>SYNCED</b>.
       </div>
 
-      <!-- Notif inline -->
       <div id="syncNotif" class="hidden mb-3 bd-2 rounded-xl p-3 text-[11.5px] font-semibold"></div>
 
       <div id="myOrders" class="font-mono text-[12px] text-gray-500">Belum ada order. Pilih paket di bawah untuk mulai.</div>
@@ -594,7 +592,7 @@
    ⚙️  CONFIG
 ================================================================= */
 const CONFIG = {
-  API_BASE: 'https://api-xs0ciety.vercel.app',
+  API_BASE: 'https://api-xs0ciety.my.id',
   DISPLAY_HOST: 'api-xs0ciety.my.id',
   API_KEY: 'kyzz',
   ADMIN_WA: '6281281116706',
@@ -693,18 +691,23 @@ async function trackedFetch(url, options = {}){
 ================================================================= */
 const API = {
   base(){ return CONFIG.API_BASE.replace(/\/$/, ''); },
+
+  // ✅ FIXED: langsung hit /api/health
   async health(){
-    const candidates = ['/api/health', '/health', '/api/ping', '/api/status'];
-    for (const p of candidates){
-      try {
-        const res = await trackedFetch(this.base() + p + '?_=' + Date.now(), {
-          signal: AbortSignal.timeout ? AbortSignal.timeout(6000) : undefined
-        });
-        return { ok: true, status: res.status, path: p };
-      } catch {}
+    try {
+      const res = await trackedFetch(this.base() + '/api/health?_=' + Date.now(), {
+        signal: AbortSignal.timeout ? AbortSignal.timeout(6000) : undefined
+      });
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        return { ok: true, status: res.status, path: '/api/health', data };
+      }
+      return { ok: false, status: res.status };
+    } catch {
+      return { ok: false };
     }
-    return { ok: false };
   },
+
   async endpoints(){
     const candidates = ['/api/endpoints', '/api/docs', '/api/routes', '/endpoints'];
     for (const p of candidates){
@@ -722,6 +725,7 @@ const API = {
     }
     return null;
   },
+
   async submitOrder(order){
     try {
       const res = await trackedFetch(this.base() + '/api/order', {
@@ -735,8 +739,8 @@ const API = {
       return { ok: false, error: e.message };
     }
   },
+
   async fetchOrders(){
-    // Coba beberapa endpoint yang mungkin
     const candidates = [
       '/api/orders?apikey=' + CONFIG.API_KEY,
       '/api/order/list?apikey=' + CONFIG.API_KEY,
@@ -780,7 +784,6 @@ function switchView(name){
   if (name === 'docs' && !Docs.loaded) Docs.load();
   if (name === 'shop') {
     Orders.render();
-    // Auto-sync sekali di awal
     if (!Orders.syncedOnce){
       Orders.syncedOnce = true;
       setTimeout(() => autoSyncOrders(false), 400);
@@ -889,7 +892,7 @@ async function fireTraffic(){
     target = API.base() + path;
     method = ep.method || 'GET';
   } else {
-    target = API.base() + '/?_=' + Date.now();
+    target = API.base() + '/api/health?_=' + Date.now();
     method = 'GET';
   }
 
@@ -913,76 +916,16 @@ async function fireTraffic(){
    📖 DOCS — FALLBACK ENDPOINT LIST
 ================================================================= */
 const DOCS_FALLBACK = [
-  {
-    category: 'Video Downloader',
-    name: 'Facebook Video',
-    desc: 'Download video Facebook dengan berbagai kualitas (Full HD 1080p, HD 720p, 480p, MP4, Audio M4A).',
-    path: '/api/v2/facebook',
-    method: 'POST'
-  },
-  {
-    category: 'Video Downloader',
-    name: 'Instagram',
-    desc: 'Download video/foto Instagram — Reels, Post, Story, dan IGTV.',
-    path: '/api/v2/instagram?url={URL}',
-    method: 'GET'
-  },
-  {
-    category: 'Video Downloader',
-    name: 'TikTok',
-    desc: 'Download video TikTok tanpa watermark + ekstrak audio MP3.',
-    path: '/api/v2/tiktok',
-    method: 'POST'
-  },
-  {
-    category: 'Video Downloader',
-    name: 'Twitter / X',
-    desc: 'Download video dari tweet Twitter/X beserta audio MP3.',
-    path: '/api/v2/twitter',
-    method: 'POST'
-  },
-  {
-    category: 'Video Downloader',
-    name: 'YouTube',
-    desc: 'Download video/audio YouTube dengan pilihan kualitas lengkap (1080p / 720p / 480p / m4a / webm).',
-    path: '/api/v2/youtube',
-    method: 'POST'
-  },
-  {
-    category: 'Music Downloader',
-    name: 'Spotify',
-    desc: 'Download lagu Spotify jadi file MP3 lengkap dengan metadata.',
-    path: '/api/v2/spotify',
-    method: 'POST'
-  },
-  {
-    category: 'Music Downloader',
-    name: 'SoundCloud',
-    desc: 'Download track dari SoundCloud dalam berbagai format audio.',
-    path: '/api/v2/soundcloud',
-    method: 'POST'
-  },
-  {
-    category: 'Upload & AI Tools',
-    name: 'File Upload',
-    desc: 'Upload file ke cloud (Litterbox) — max 50 MB, durasi 1h / 12h / 24h / 72h.',
-    path: '/api/v2/upload',
-    method: 'POST'
-  },
-  {
-    category: 'Upload & AI Tools',
-    name: 'Face Swap',
-    desc: 'Tukar wajah dengan AI — upload source & target image.',
-    path: '/api/v2/faceswap',
-    method: 'POST'
-  },
-  {
-    category: 'Upload & AI Tools',
-    name: 'Voice Changer',
-    desc: 'Ubah suara audio kamu ke berbagai voice model (30+ pilihan: US/UK/AU).',
-    path: '/api/v2/voice-changer',
-    method: 'POST'
-  }
+  { category: 'Video Downloader', name: 'Facebook Video', desc: 'Download video Facebook dengan berbagai kualitas (Full HD 1080p, HD 720p, 480p, MP4, Audio M4A).', path: '/api/v2/facebook', method: 'POST' },
+  { category: 'Video Downloader', name: 'Instagram', desc: 'Download video/foto Instagram — Reels, Post, Story, dan IGTV.', path: '/api/v2/instagram?url={URL}', method: 'GET' },
+  { category: 'Video Downloader', name: 'TikTok', desc: 'Download video TikTok tanpa watermark + ekstrak audio MP3.', path: '/api/v2/tiktok', method: 'POST' },
+  { category: 'Video Downloader', name: 'Twitter / X', desc: 'Download video dari tweet Twitter/X beserta audio MP3.', path: '/api/v2/twitter', method: 'POST' },
+  { category: 'Video Downloader', name: 'YouTube', desc: 'Download video/audio YouTube dengan pilihan kualitas lengkap (1080p / 720p / 480p / m4a / webm).', path: '/api/v2/youtube', method: 'POST' },
+  { category: 'Music Downloader', name: 'Spotify', desc: 'Download lagu Spotify jadi file MP3 lengkap dengan metadata.', path: '/api/v2/spotify', method: 'POST' },
+  { category: 'Music Downloader', name: 'SoundCloud', desc: 'Download track dari SoundCloud dalam berbagai format audio.', path: '/api/v2/soundcloud', method: 'POST' },
+  { category: 'Upload & AI Tools', name: 'File Upload', desc: 'Upload file ke cloud (Litterbox) — max 50 MB, durasi 1h / 12h / 24h / 72h.', path: '/api/v2/upload', method: 'POST' },
+  { category: 'Upload & AI Tools', name: 'Face Swap', desc: 'Tukar wajah dengan AI — upload source & target image.', path: '/api/v2/faceswap', method: 'POST' },
+  { category: 'Upload & AI Tools', name: 'Voice Changer', desc: 'Ubah suara audio kamu ke berbagai voice model (30+ pilihan: US/UK/AU).', path: '/api/v2/voice-changer', method: 'POST' }
 ];
 
 const Docs = {
@@ -1070,6 +1013,8 @@ renderUptime(); setInterval(renderUptime, 1000);
 const apiStatusText = document.getElementById('apiStatusText');
 const apiStatusDot = document.getElementById('apiStatusDot');
 const apiModeBadge = document.getElementById('apiModeBadge');
+
+// ✅ FIXED: pakai /api/health
 async function checkApiService(){
   if (!navigator.onLine){
     apiStatusText.textContent = 'OFFLINE';
@@ -1079,13 +1024,19 @@ async function checkApiService(){
   }
   const start = performance.now();
   try {
-    await trackedFetch(API.base() + '/?_=' + Date.now(), {
+    const res = await trackedFetch(API.base() + '/api/health?_=' + Date.now(), {
       signal: AbortSignal.timeout ? AbortSignal.timeout(6000) : undefined
     });
     const ms = Math.round(performance.now() - start);
-    apiStatusText.textContent = 'ONLINE';
-    apiStatusDot.className = 'w-3 h-3 rounded-full bg-green-500 border-2 border-black pulse';
-    apiModeBadge.textContent = `Mode: PRODUCTION · ${ms}ms`;
+    if (res.ok){
+      apiStatusText.textContent = 'ONLINE';
+      apiStatusDot.className = 'w-3 h-3 rounded-full bg-green-500 border-2 border-black pulse';
+      apiModeBadge.textContent = `Mode: PRODUCTION · ${ms}ms`;
+    } else {
+      apiStatusText.textContent = 'DEGRADED';
+      apiStatusDot.className = 'w-3 h-3 rounded-full bg-yellow-400 border-2 border-black';
+      apiModeBadge.textContent = `HTTP ${res.status} · ${ms}ms`;
+    }
   } catch {
     apiStatusText.textContent = 'UNREACHABLE';
     apiStatusDot.className = 'w-3 h-3 rounded-full bg-orange-400 border-2 border-black';
@@ -1096,13 +1047,16 @@ checkApiService(); setInterval(checkApiService, CONFIG.HEALTH_INTERVAL_MS);
 
 const latencyEl = document.getElementById('latencyValue');
 const latencyBadge = document.getElementById('latencyBadge');
+
+// ✅ FIXED: pakai /api/health
 async function measureLatency(){
   if (!navigator.onLine){ latencyEl.textContent = 'OFFLINE'; return; }
   const start = performance.now();
   try {
-    await trackedFetch(API.base() + '/?_lat=' + Date.now(), {
+    const res = await trackedFetch(API.base() + '/api/health?_lat=' + Date.now(), {
       signal: AbortSignal.timeout ? AbortSignal.timeout(6000) : undefined
     });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const ms = Math.round(performance.now() - start);
     latencyEl.textContent = ms + ' ms';
     latencyBadge.textContent = ms < 100 ? 'Sangat cepat' : ms < 300 ? 'Cepat' : ms < 800 ? 'Sedang' : 'Lambat';
@@ -1268,11 +1222,9 @@ const Orders = {
     }
   },
 
-  // ─── Core: Sync server ───────────────────────────────────────
   async syncFromServer(){
     const remote = await API.fetchOrders();
 
-    // Kasus: server gak balikin array valid
     if (!Array.isArray(remote)){
       return {
         ok: false,
@@ -1281,14 +1233,12 @@ const Orders = {
       };
     }
 
-    // Merge: local dulu, tambahin yang dari server kalau belum ada
     const seen = new Set(this.local.map(o => o.id));
     let added = 0, updated = 0;
     for (const r of remote){
       const id = r.id || r.order_id || (r.plan + '_' + r.date);
       if (!id) continue;
       if (seen.has(id)){
-        // update status kalau misal server bilang "paid"
         const idx = this.local.findIndex(o => o.id === id);
         if (idx >= 0 && r.status && this.local[idx].status !== r.status){
           this.local[idx].status = r.status;
@@ -1315,7 +1265,6 @@ const Orders = {
 
 Orders.init();
 
-// ─── Sync button + notif helpers ──────────────────────────────
 function showSyncNotif(kind, message){
   const el = document.getElementById('syncNotif');
   if (!el) return;
@@ -1325,13 +1274,11 @@ function showSyncNotif(kind, message){
   else                      el.className = 'mb-3 bg-porange bd-2 rounded-xl p-3 text-[11.5px] font-semibold';
   el.textContent = message;
 
-  // Auto-hide setelah 6 detik
   clearTimeout(el._hideTimer);
   el._hideTimer = setTimeout(() => el.classList.add('hidden'), 6000);
 }
 
 function setSyncBtnState(state){
-  // state: 'idle' | 'loading'
   const btn   = document.getElementById('syncOrders');
   const icon  = document.getElementById('syncIcon');
   const label = document.getElementById('syncLabel');
@@ -1356,7 +1303,6 @@ async function autoSyncOrders(showNotifWhenEmpty = true){
   try {
     const res = await Orders.syncFromServer();
     if (res.ok){
-      // update timestamp
       localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
       Orders.renderLastSync();
 
@@ -1371,7 +1317,6 @@ async function autoSyncOrders(showNotifWhenEmpty = true){
         showSyncNotif('ok', `✓ Sync berhasil — ${parts.join(', ')}. Total ${res.total} order di server.`);
       }
     } else {
-      // Server gak punya endpoint
       showSyncNotif('err', '✕ ' + res.message + ' Order lokal kamu tetap aman.');
     }
   } catch (e){
@@ -1383,7 +1328,6 @@ async function autoSyncOrders(showNotifWhenEmpty = true){
 
 document.getElementById('syncOrders')?.addEventListener('click', () => autoSyncOrders(true));
 
-/* ─── Modal Order ─────────────────────────────────────────── */
 const shopModal = document.getElementById('shopModal');
 const closeShopModal = document.getElementById('closeShopModal');
 const modalPlan = document.getElementById('modalPlan');
@@ -1536,4 +1480,4 @@ document.addEventListener('visibilitychange', () => {
 });
 </script>
 </body>
-</html>
+  </html>
