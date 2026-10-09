@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://xs0cietylabsz-scrape.my.id/sitemap.xml
+Sitemap: https://api-xs0ciety.my.id/sitemap.xml
